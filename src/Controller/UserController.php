@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserController extends AbstractController
 {
@@ -34,6 +35,8 @@ class UserController extends AbstractController
     #[Route('/api/getAllUser', name: 'getAllUser')]
     public function getAllUser(ManagerRegistry $doctrine): JsonResponse
     {
+        throw new NotFoundHttpException("Users not found loli lola");
+
         $repository = $doctrine->getRepository(User::class);
         $users = $repository->findAll();
 
