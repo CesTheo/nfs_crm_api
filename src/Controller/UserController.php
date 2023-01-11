@@ -4,6 +4,7 @@ namespace App\Controller;
 
 
 use App\Entity\User;
+use App\Services\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -49,35 +50,38 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/createUser', name: 'createUser', methods: ["POST"])]
-    public function createUser(Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function createUser(Request $request, UserService $userService): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        // Vérifier si les données de la requête sont bien présentes et ont le bon format
+
         if (!isset($data['email']) || !isset($data['roles']) || !isset($data['password']) || !isset($data['first_name']) || !isset($data['last_name']) || !isset($data['phone']) || !isset($data['verify']) || !isset($data['society'])) {
             return $this->json([
                 "code" => 400,
-                "message" => "Données de la requête manquantes ou incorrectes"
+                "message" => "Données de la requête manquantes"
+            ]);
+        }
+
+        if (!$userService->alreadyExist($data['email'])) {
+            return $this->json([
+                "code" => 400,
+                "message" => "L'email est déja enregistrer"
+            ]);
+        }
+
+        if (!$userService->verifyUser($data['email'], $data['roles'], $data['password'], $data['first_name'], $data['last_name'], $data['phone'], $data['verify'], $data['society'])) {
+            return $this->json([
+                "code" => 400,
+                "message" => "Données de la requête invalides"
+            ]);
+        }
+
+        if($userService->createUser($data['email'], $data['roles'], $data['password'], $data['first_name'], $data['last_name'], $data['phone'], $data['verify'], $data['society'])){
+            return $this->json([
+                "code" => 201,
+                "message" => "Utilisateur crée"
             ]);
         }
     
-        $user = new User();
-        $user->setEmail($data['email']);
-        $user->setRoles($data['roles']);
-        $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT));
-        $user->setFirstName($data['first_name']);
-        $user->setLastName($data['last_name']);
-        $user->setPhone($data['phone']);
-        $user->setVerify($data['verify']);
-        $user->setSociety($data['society']);
-    
-        $entityManager = $doctrine->getManager();
-        $entityManager->persist($user);
-        $entityManager->flush();
-    
-        return $this->json([
-            "code" => 201,
-            "message" => "Utilisateur créé avec succès"
-        ]);
     }
 
     #[Route('/api/updateUser/{id}', name: 'updateUser', methods: ["PUT"])]
