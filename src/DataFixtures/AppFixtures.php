@@ -2,8 +2,6 @@
 namespace App\DataFixtures;
 
 use App\Entity\Fiche;
-use App\Entity\HistoryLead;
-use App\Entity\HistoryPaiment;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;

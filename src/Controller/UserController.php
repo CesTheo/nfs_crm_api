@@ -63,7 +63,7 @@ class UserController extends AbstractController
         $user = new User();
         $user->setEmail($data['email']);
         $user->setRoles($data['roles']);
-        $user->setPassword($data['password']);
+        $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT));
         $user->setFirstName($data['first_name']);
         $user->setLastName($data['last_name']);
         $user->setPhone($data['phone']);
@@ -105,7 +105,7 @@ class UserController extends AbstractController
 
         $user->setEmail($data['email']);
         $user->setRoles($data['roles']);
-        $user->setPassword($data['password']);
+        $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT));
         $user->setFirstName($data['first_name']);
         $user->setLastName($data['last_name']);
         $user->setPhone($data['phone']);
