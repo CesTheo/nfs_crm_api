@@ -85,6 +85,7 @@ class Fiche
             'id' => $this->id,
             'name' => $this->name,
             'categorie' => $this->categorie,
+            'data' => $this->data,
         ];
     }
 }

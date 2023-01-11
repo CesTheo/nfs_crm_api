@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use App\Entity\User;
 use App\Services\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,7 +30,6 @@ class UserController extends AbstractController
         ]);
     }
 
-
     #[Route('/api/getAllUser', name: 'getAllUser')]
     public function getAllUser(ManagerRegistry $doctrine): JsonResponse
     {
@@ -55,32 +54,15 @@ class UserController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['email']) || !isset($data['roles']) || !isset($data['password']) || !isset($data['first_name']) || !isset($data['last_name']) || !isset($data['phone']) || !isset($data['verify']) || !isset($data['society'])) {
-            return $this->json([
-                "code" => 400,
-                "message" => "Données de la requête manquantes"
-            ]);
+            throw new BadRequestHttpException("Il manque un ou plusieurs champs dans la requete");
         }
 
-        if (!$userService->alreadyExist($data['email'])) {
-            return $this->json([
-                "code" => 400,
-                "message" => "L'email est déja enregistrer"
-            ]);
-        }
+        $userService->createUser($data['email'], $data['roles'], $data['password'], $data['first_name'], $data['last_name'], $data['phone'], $data['verify'], $data['society']);
 
-        if (!$userService->verifyUser($data['email'], $data['roles'], $data['password'], $data['first_name'], $data['last_name'], $data['phone'], $data['verify'], $data['society'])) {
-            return $this->json([
-                "code" => 400,
-                "message" => "Données de la requête invalides"
-            ]);
-        }
-
-        if($userService->createUser($data['email'], $data['roles'], $data['password'], $data['first_name'], $data['last_name'], $data['phone'], $data['verify'], $data['society'])){
-            return $this->json([
-                "code" => 201,
-                "message" => "Utilisateur crée"
-            ]);
-        }
+        return $this->json([
+            "code" => 200,
+            "message" => "Utilsateur crée"
+        ]);
     
     }
 
@@ -89,7 +71,6 @@ class UserController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        // Vérifier si les données de la requête sont bien présentes et ont le bon format
         if (!isset($data['email']) || !isset($data['roles']) || !isset($data['password']) || !isset($data['first_name']) || !isset($data['last_name']) || !isset($data['phone']) || !isset($data['verify']) || !isset($data['society'])) {
             return $this->json([
                 "code" => 400,
@@ -126,7 +107,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route("/api/readUser/{id}", name: "readUser")]
+    #[Route("/api/getUser/{id}", name: "readUser")]
     public function readUser(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         $repository = $doctrine->getRepository(User::class);
