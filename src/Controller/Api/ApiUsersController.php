@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use App\Entity\User;
@@ -11,45 +11,46 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
+use App\Helper\HttpResponseHelper;
 
-class UserController extends AbstractController
+#[Route('/users', name: 'users')]
+class ApiUsersController extends AbstractController
 {
-    #[Route('/api/getDataUser', name: 'getDataUser')]
-    public function getDataUser(#[CurrentUser] ?User $user): JsonResponse
-    {
-        if(!$user){
-            return $this->json([
-                "code" => 404,
-                "message" => "Utilisateur non trouvé",
-            ]);
-        }
+    private UserService $userService;
 
-        return $this->json([
-            "code" => 200,
-            "message" => $user
-        ]);
+    function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
     }
 
-    #[Route('/api/getAllUser', name: 'getAllUser')]
-    public function getAllUser(ManagerRegistry $doctrine): JsonResponse
+    #[Route('/me', name: '_me', methods: ['GET'])]
+    function getDataUser(#[CurrentUser] ?User $user): JsonResponse
     {
-        $repository = $doctrine->getRepository(User::class);
-        $users = $repository->findAll();
-
-        // Convertir chaque objet User en un tableau car référence circulaire 
-        $usersArray = array();
-        foreach ($users as $user) {
-            $usersArray[] = $user->toArray();
+        if(!$user){
+            return HttpResponseHelper::notFound("Utilisateur non trouvé");
         }
 
-        return $this->json([
-                "code" => 200,
-                "message" => $usersArray
-            ]);
+        return $this->json(HttpResponseHelper::success($user->toArray()));
+    }
+
+    #[Route('/', name: '_index', methods: ['GET'])]
+    function getAllUsers(Request $request): JsonResponse
+    {
+        $page = intval($request->query->get('page')) ?? 1;
+        $limit = intval($request->query->get('limit')) ?? 10;
+
+        return $this->json(HttpResponseHelper::success(
+            $this->userService->search([
+                'paginate' => [
+                    'page' => $page,
+                    'limit' => $limit
+                ]
+            ])
+        ));
     }
 
     #[Route('/api/createUser', name: 'createUser', methods: ["POST"])]
-    public function createUser(Request $request, UserService $userService): JsonResponse
+    function createUser(Request $request, UserService $userService): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 

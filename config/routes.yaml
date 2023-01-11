@@ -4,6 +4,11 @@ controllers:
         namespace: App\Controller
     type: attribute
 
+api:
+    resource: '../src/Controller/Api/'
+    type: annotation
+    prefix: /api
+
 api_login_check:
     path: /api/login_check
     methods: [POST]
