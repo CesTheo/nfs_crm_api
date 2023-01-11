@@ -2,50 +2,33 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use App\Entity\User;
 use App\Services\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
+
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use App\Helper\HttpResponseHelper;
 
 class UserController extends AbstractController
 {
     #[Route('/api/getDataUser', name: 'getDataUser')]
-    public function getDataUser(#[CurrentUser] ?User $user): JsonResponse
+    public function getDataUser(#[CurrentUser] ?User $user, UserService $userService): JsonResponse
     {
-        if(!$user){
-            return $this->json([
-                "code" => 404,
-                "message" => "Utilisateur non trouvé",
-            ]);
-        }
+        $response = $userService->getUser($user->getId());
 
-        return $this->json([
-            "code" => 200,
-            "message" => $user
-        ]);
+        return $this->json(HttpResponseHelper::success($response));
     }
 
     #[Route('/api/getAllUser', name: 'getAllUser')]
-    public function getAllUser(ManagerRegistry $doctrine): JsonResponse
+    public function getAllUser(UserService $userService): JsonResponse
     {
-        $repository = $doctrine->getRepository(User::class);
-        $users = $repository->findAll();
+        $response = $userService->getAllUser();
 
-        // Convertir chaque objet User en un tableau car référence circulaire 
-        $usersArray = array();
-        foreach ($users as $user) {
-            $usersArray[] = $user->toArray();
-        }
-
-        return $this->json([
-                "code" => 200,
-                "message" => $usersArray
-            ]);
+        return $this->json(HttpResponseHelper::success($response));
     }
 
     #[Route('/api/createUser', name: 'createUser', methods: ["POST"])]
@@ -59,70 +42,23 @@ class UserController extends AbstractController
 
         $userService->createUser($data['email'], $data['roles'], $data['password'], $data['first_name'], $data['last_name'], $data['phone'], $data['verify'], $data['society']);
 
-        return $this->json([
-            "code" => 200,
-            "message" => "Utilsateur crée"
-        ]);
-    
+        return $this->json(HttpResponseHelper::success("Utilisateur créee"));
     }
 
     #[Route('/api/updateUser/{id}', name: 'updateUser', methods: ["PUT"])]
-    public function updateUser(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function updateUser(int $id, Request $request, UserService $userService): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $request = json_decode($request->getContent(), true);
+        $response = $userService->updateUser($id, $request);
+        return $this->json(HttpResponseHelper::success($response));
 
-        if (!isset($data['email']) || !isset($data['roles']) || !isset($data['password']) || !isset($data['first_name']) || !isset($data['last_name']) || !isset($data['phone']) || !isset($data['verify']) || !isset($data['society'])) {
-            return $this->json([
-                "code" => 400,
-                "message" => "Données de la requête manquantes ou incorrectes"
-            ]);
-        }
-
-        $repository = $doctrine->getRepository(User::class);
-        $user = $repository->findOneById($id);
-
-        if(!$user){
-            return $this->json([
-                "code" => 404,
-                "message" => "Utilisateur non trouvé",
-            ]);
-        }
-
-        $user->setEmail($data['email']);
-        $user->setRoles($data['roles']);
-        $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT));
-        $user->setFirstName($data['first_name']);
-        $user->setLastName($data['last_name']);
-        $user->setPhone($data['phone']);
-        $user->setVerify($data['verify']);
-        $user->setSociety($data['society']);
-
-        $entityManager = $doctrine->getManager();
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        return $this->json([
-            "code" => 200,
-            "message" => "Utilisateur mis à jour avec succès"
-        ]);
     }
 
     #[Route("/api/getUser/{id}", name: "readUser")]
-    public function readUser(int $id, ManagerRegistry $doctrine): JsonResponse
+    public function readUser(int $id, UserService $userService): JsonResponse
     {
-        $repository = $doctrine->getRepository(User::class);
-        $user = $repository->find($id);
-        
-        if (!$user) {
-            return $this->json([
-                "code" => 404,
-                "message" => "Utilisateur non trouvé"
-            ]);
-        }
+        $response = $userService->getUser($id);
 
-        return $this->json([
-            "code" => 200,
-            "message" => $user->toArray()
-        ]);
+        return $this->json(HttpResponseHelper::success($response));
     }
 }

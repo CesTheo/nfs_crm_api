@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use App\Helper\HttpResponseHelper;
 use App\Entity\User;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class UserService
 {
@@ -82,5 +83,55 @@ class UserService
         }
     }
 
+    public function getAllUser(){
 
+        $repository = $this->doctrine->getRepository(User::class);
+        $users = $repository->findAll();
+
+        // Convertir chaque objet User en un tableau car référence circulaire 
+        $usersArray = array();
+        foreach ($users as $user) {
+            $usersArray[] = $user->toArray();
+        }
+
+        return $usersArray;
+    }
+
+    public function updateUser($id, $data){
+
+        if (!isset($data['email']) || !isset($data['roles']) || !isset($data['password']) || !isset($data['first_name']) || !isset($data['last_name']) || !isset($data['phone']) || !isset($data['verify']) || !isset($data['society'])) {
+            throw new BadRequestHttpException("Requete invalide");
+        }
+
+        $repository = $this->doctrine->getRepository(User::class);
+        $user = $repository->findOneById($id);
+
+        if(!$user){
+            throw new BadRequestHttpException("L'utilisateur est introuvable");
+        }
+
+        $user->setEmail($data['email']);
+        $user->setRoles($data['roles']);
+        $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT));
+        $user->setFirstName($data['first_name']);
+        $user->setLastName($data['last_name']);
+        $user->setPhone($data['phone']);
+        $user->setVerify($data['verify']);
+        $user->setSociety($data['society']);
+
+        $entityManager = $this->doctrine->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return("L'utilisateur a bien était modifier");
+    }
+
+    public function getUser($id){
+        $repository = $this->doctrine->getRepository(User::class);
+        $user = $repository->find($id);
+        if (!$user) {
+            throw new BadRequestHttpException("User introuvable");
+        }
+        return($user->toArray());
+    }
 }
