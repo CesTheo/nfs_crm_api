@@ -5,15 +5,50 @@ namespace App\Services;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Helper\HttpResponseHelper;
 use App\Entity\User;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use App\Repository\UserRepository;
 
 class UserService
 {
 
-    private $doctrine;
+    private $userRepository;
 
-    public function __construct(ManagerRegistry $doctrine){
-        $this->doctrine = $doctrine;
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
+    public function search(array $searchParams)
+    {
+        // - Select pagination params from array and remove them from the search params array
+        $paginate = $searchParams['paginate'] ?? [];
+        $limit = $paginate['limit'];
+        $page = $paginate['page'];
+        unset($searchParams['paginate']);
+
+        // - Count total of rows
+        $count = $this->userRepository->createQueryBuilder('o')
+            ->select('count(o.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // - Get paginated data from repository
+        $offset = ($page - 1) * $limit;
+        $users = $this->userRepository->findBy($searchParams, null, $limit, $offset);
+
+        // - Convert entities to array to avoid circular reference issues
+        for ($i = 0; $i < count($users); $i++) {
+            $users[$i] = $users[$i]->toArray();
+        }
+
+        return [
+            'users' => $users,
+            'metadata' => [
+                'page' => $page,
+                'limit' => $limit,
+                'pages' => $count > 0 ? ceil($count / $limit) : 1,
+                'total' => $count
+            ]
+        ];
     }
 
     public function verifyUser($email, $roles, $password, $firstName, $lastName, $phone, $verify, $society){
@@ -65,73 +100,18 @@ class UserService
         $user->setVerify($verify);
         $user->setSociety($society);
     
-        $entityManager = $this->doctrine->getManager();
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $this->userRepository->save($user);
 
         return true;
     }
 
     public function alreadyExist($email){
-        $users = $this->doctrine->getRepository(User::class);
-        $user = $users->findOneBy(['email' => $email]);
+        $user = $this->userRepository->findOneBy(['email' => $email]);
 
         if($user === null){
             return true;
         }else{
             throw new BadRequestHttpException("L'email est déja enregistrer");
         }
-    }
-
-    public function getAllUser(){
-
-        $repository = $this->doctrine->getRepository(User::class);
-        $users = $repository->findAll();
-
-        // Convertir chaque objet User en un tableau car référence circulaire 
-        $usersArray = array();
-        foreach ($users as $user) {
-            $usersArray[] = $user->toArray();
-        }
-
-        return $usersArray;
-    }
-
-    public function updateUser($id, $data){
-
-        if (!isset($data['email']) || !isset($data['roles']) || !isset($data['password']) || !isset($data['first_name']) || !isset($data['last_name']) || !isset($data['phone']) || !isset($data['verify']) || !isset($data['society'])) {
-            throw new BadRequestHttpException("Requete invalide");
-        }
-
-        $repository = $this->doctrine->getRepository(User::class);
-        $user = $repository->findOneById($id);
-
-        if(!$user){
-            throw new BadRequestHttpException("L'utilisateur est introuvable");
-        }
-
-        $user->setEmail($data['email']);
-        $user->setRoles($data['roles']);
-        $user->setPassword(password_hash($data['password'], PASSWORD_DEFAULT));
-        $user->setFirstName($data['first_name']);
-        $user->setLastName($data['last_name']);
-        $user->setPhone($data['phone']);
-        $user->setVerify($data['verify']);
-        $user->setSociety($data['society']);
-
-        $entityManager = $this->doctrine->getManager();
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        return("L'utilisateur a bien était modifier");
-    }
-
-    public function getUser($id){
-        $repository = $this->doctrine->getRepository(User::class);
-        $user = $repository->find($id);
-        if (!$user) {
-            throw new BadRequestHttpException("User introuvable");
-        }
-        return($user->toArray());
     }
 }

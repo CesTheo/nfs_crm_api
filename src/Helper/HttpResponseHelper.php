@@ -4,6 +4,7 @@
 namespace App\Helper;
 
 use Symfony\Component\HttpClient\Response\NativeResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class HttpResponseHelper
 {
@@ -29,7 +30,7 @@ class HttpResponseHelper
       $message['status'] = $status;
     }
 
-    return $message;
+    throw new HttpException($message);
   }
 
   public static function notFound(string $message, array $errors = null)
