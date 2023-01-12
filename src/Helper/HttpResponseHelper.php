@@ -15,13 +15,12 @@ class HttpResponseHelper
     ];
   }
 
-  public static function error(string $message, array $errors = null, int $status = null)
+  public static function error(string $message, array $errors = null, int $status = null) : array
   {
     $message = [
       'success' => false,
       'message' => $message,
     ];
-
     if($errors) {
       $message['errors'] = $errors;
     }
