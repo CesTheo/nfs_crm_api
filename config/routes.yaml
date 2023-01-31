@@ -5,9 +5,13 @@ controllers:
     type: attribute
 
 api:
-    resource: '../src/Controller/Api/'
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller\Api
     type: annotation
     prefix: /api
+    defaults:
+        _format: json
 
 api_login_check:
     path: /api/login_check

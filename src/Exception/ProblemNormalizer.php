@@ -12,6 +12,7 @@ class ProblemNormalizer implements NormalizerInterface
   public function normalize($object, $format = null, array $context = []): array
   {
     $errors = $exception->getErrors();
+    dd($errors);
     foreach ($errors as $error) {
       $data[$error->getOrigin()->getName()][] = $error->getMessage();
     }

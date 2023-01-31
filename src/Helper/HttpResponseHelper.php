@@ -18,20 +18,20 @@ class HttpResponseHelper
 
   public static function error(string $message, array $errors = null, int $status = null)
   {
-    $message = [
+    $response = [
       'success' => false,
       'message' => $message,
     ];
 
     if($errors) {
-      $message['errors'] = $errors;
+      $response['errors'] = $errors;
     }
 
     if($status) {
-      $message['status'] = $status;
+      $response['status'] = $status;
     }
 
-    throw new HttpException($message);
+    return $response;
   }
 
   public static function notFound(string $message, array $errors = null)

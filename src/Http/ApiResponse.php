@@ -4,7 +4,6 @@
 namespace App\Http;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 use App\Helper\HttpResponseHelper;
 
 class ApiResponse extends JsonResponse
