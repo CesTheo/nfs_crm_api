@@ -1,0 +1,255 @@
+{% block body %}
+<style>
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+  font-family: sans-serif;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+.h1{font-size: 42px}
+.h2{font-size: 36px}
+.h3{font-size: 28px}
+.h4{font-size: 24px}
+.h5{font-size: 20px}
+.h6{font-size: 18px}
+
+.line{
+  background-color: #2563EB;
+  height: 26px;
+  width: 100%;
+}
+
+.bg-blue{
+  background-color: #2563EB;
+}
+
+.line2{
+  background-color: #666666;
+  height: 2px;
+  width: 100%;
+}
+
+.bold{
+  font-weight: 700;
+}
+
+.white{
+  color: white;
+}
+
+.uppercase{
+  text-transform: uppercase;
+}
+
+.body{
+  margin: 12px;
+}
+
+.block{
+  margin: 24px 0;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.col {
+  width: 32%;
+  display: inline-block;
+}
+
+.right{
+  text-align: right;
+}
+
+.my-2{
+  margin: 8px 0;
+}
+
+.mt-4{
+  margin: 46px 0;
+}
+
+.w-full{
+  width: 100%;
+}
+.h-4{
+  margin: 20px 0 0 0;
+}
+
+.p-2{
+  padding: 6px;
+}
+
+.p-1{
+  padding: 3px;
+}
+
+.p-12{
+  padding: 28px;
+}
+
+.border-left{
+  border-top: 2px solid black;
+  border-left: 2px solid black;
+  border-bottom: 2px solid black;
+}
+
+.border-right{
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+}
+
+.border{
+  border: 2px solid black;
+}
+</style>
+
+<div class="body">
+
+<div class="line">
+
+</div>
+
+    <div class="block">
+      <p class="h5 bold my-2">{{ lead.nom }} {{ lead.forme_juridique }}</p>
+      <p >{{ lead.adresse_entreprise_line1 }}</p>
+      <p>{{ lead.adresse_entreprise_line2 }}</p>
+      <p>Siret :  {{ lead.siret }}</p>
+    </div>
+
+  <div class="container mt-4">
+    <div class="col">
+      <p class="uppercase bold h5 my-2 p-1">Facturé à</p>
+      <p class="p-1">{{ customer.entreprise }}</p>
+      <p class="p-1">{{ customer.adresse_facturation_1 }}</p>
+      <p class="p-1">{{ customer.adresse_facturation_2 }}</p>
+    </div>
+    <div class="col">
+      <p class="uppercase bold h5 my-2 p-1">Envoyé à </p>
+      <p class="p-1">{{ customer.entreprise }}</p>
+      <p class="p-1">{{ customer.adresse_client_1 }}</p>
+      <p class="p-1">{{ customer.adresse_client_2 }}</p>
+    </div>
+    <div class="col">
+      <table>
+        <tr class="p-1">
+          <td class="uppercase bold h5 p-1">Facture n°</span></td>
+          <td class="right p-1">{{ facture.numero}}</td>
+        </tr>
+        <tr class="p-1">
+          <td class="uppercase bold h5 p-1">Date </span></td>
+          <td class="right p-1">{{ lead.date_du_projet }}</td>
+        </tr>
+        <tr class="p-1">
+          <td class="uppercase bold h5 p-1">Échéance</td>
+          <td class="right p-1">{{devis.duree_validite_devis}}</td>
+        </tr>
+        <tr class="p-1">
+          <td class="uppercase bold h5 p-1">Échéance</td>
+          <td class="right p-1">{{devis.duree_validite_devis}}</td>
+        </tr>
+    </table>
+    </div>
+
+    <table class="w-full">
+      <tr class="bg-blue">
+        <td class="h5 my-2 white p-2">Description</td>
+        <td class="h5 my-2 white p-2">Quantité</td>
+        <td class="h5 my-2 white p-2">Prix Unitaire HT</td>
+        <td class="h5 my-2 white p-2">Montant HT</td>
+      </tr>
+      {% for detail in details %}
+      <tr class="p-2">
+        <td class="p-2">{{ detail.nom_prestation }}</td>
+        <td class="p-2">{{ detail.quantite }}</td>
+        <td class="p-2">{{ detail.prix_unitaire_ht }}</td>
+        <td class="p-2">{{ detail.quantite * detail.prix_unitaire_ht }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="p-2">
+        <td class="p-2"></td>
+        <td class="p-2"></td>
+        <td class="p-2">Total HT</td>
+        <td class="p-2">{{ finance.total_ht }} €</td>
+      </tr>
+      <tr class="p-2">
+        <td class="p-2"></td>
+        <td class="p-2"></td>
+        <td class="p-2">TVA {{ finance.tva_applicables }} %</td>
+        <td class="p-2">{{ finance.total_ht * (finance.tva_applicables / 100)}}</td>
+      </tr>
+      <tr class="p-2">
+        <td class="p-2"></td>
+        <td class="p-2"></td>
+        <td class="p-2 h4 bold border-left">Montant TTC</td>
+        <td class="p-2 h4 bold border-right">{{ finance.total_ttc }} €</td>
+      </tr>
+      <tr class="p-2">
+        <td class="p-2"></td>
+        <td class="p-2"></td>
+        <td class="p-2"></td>
+        <td class="p-2 h6">Signature </td>
+      </tr>
+      <tr class="p-2">
+        <td class="p-2"></td>
+        <td class="p-2"></td>
+        <td class="p-12"></td>
+        <td class="p-12 h4 border"></td>
+      </tr>
+    </table>
+
+
+  </div>
+
+
+
+</div>
+  {% endblock %}

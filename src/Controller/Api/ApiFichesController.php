@@ -25,13 +25,21 @@ class ApiFichesController extends AbstractController
     #[Route('/test', name: '_test')]
     public function getDataUser(): Response
     {
-        // $response = $this->ficheService->createDevisExample();
+        $datapdf = $this->ficheService->createDevisExample();
         // return $this->json(HttpResponseHelper::success($response));
         $dompdf = new Dompdf();
-        $html = '<h1>Hello World</h1>'; // contenu HTML
+        $html = $this->renderView('devis/devis.html.twig', [
+            'customer' => $datapdf["customer"],
+            'lead' => $datapdf["lead"],
+            'finance' => $datapdf["finance"],
+            'details' => $datapdf["details"],
+            'facture' => $datapdf["facture"],
+            'devis' => $datapdf["devis"]
+        ]); // contenu HTML
         $dompdf->loadHtml($html);
         $dompdf->render();
         $pdf = $dompdf->output();
+
         return new Response($pdf, 200, array(
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="file.pdf"'
