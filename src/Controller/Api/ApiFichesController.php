@@ -2,14 +2,13 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Fiche;
 use App\Services\FicheService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Helper\HttpResponseHelper;
 use Dompdf\Dompdf;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/fiches', name: 'fiches')]
 class ApiFichesController extends AbstractController
@@ -22,11 +21,11 @@ class ApiFichesController extends AbstractController
         $this->ficheService = $ficheService;
     }
 
-    #[Route('/test', name: '_test')]
+    #[Route('/testDevis', name: '_test')]
     public function getDataUser(): Response
     {
         $datapdf = $this->ficheService->createDevisExample();
-        // return $this->json(HttpResponseHelper::success($response));
+        dd($datapdf);
         $dompdf = new Dompdf();
         $html = $this->renderView('devis/devis.html.twig', [
             'customer' => $datapdf["customer"],
@@ -35,7 +34,7 @@ class ApiFichesController extends AbstractController
             'details' => $datapdf["details"],
             'facture' => $datapdf["facture"],
             'devis' => $datapdf["devis"]
-        ]); // contenu HTML
+        ]);
         $dompdf->loadHtml($html);
         $dompdf->render();
         $pdf = $dompdf->output();
@@ -45,9 +44,16 @@ class ApiFichesController extends AbstractController
             'Content-Disposition' => 'attachment; filename="file.pdf"'
         ));
     }
-    //Création fiche
-    //Lire la fiche
-    //Supprimer fiche
-    //Modifier une fiche (facultatif)
-    //telecharger la fiche via pdf
+
+    //Create Devis
+    #[Route('/createDevis', name: '_createdevis')]
+    public function createDevis(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        return new JsonResponse($this->ficheService->createDevis($data));
+
+    }
+
+    //Read Devis
+    
 }

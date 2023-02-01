@@ -2,15 +2,19 @@
 
 namespace App\Services;
 
+use App\Entity\Fiche;
 use App\Repository\FicheRepository;
+use App\Repository\UserRepository;
 
 class FicheService
 {
     private $ficheRepository;
+    private $userRepository;
 
-    public function __construct(FicheRepository $ficheRepository)
+    public function __construct(FicheRepository $ficheRepository, UserRepository $userRepository)
     {
         $this->ficheRepository = $ficheRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function createDevisExample(){
@@ -25,13 +29,6 @@ class FicheService
                 "siret" => "32353464565",
             ],
             "finance" => [
-                "prix_horaire" => "",
-                "forfaitaire_main_doeuvre" => "",
-                "frais_de_deplacement" => "",
-                "conditions_paiment" => "",
-                "livraison_execution_du_contrat" => "",
-                "procedure_reclamation" => "",
-                "service_apres_vente" => "",
                 "total_ht" => "1000",
                 "total_ttc" => "1200",
                 "tva_applicables" => "20",
@@ -89,7 +86,23 @@ class FicheService
             ]
         ];
         return $datapdf;
-
     }
 
+    public function createDevis($data){
+
+        $user = $this->userRepository->findOneBy(['email' => $data["email_target"]]);
+        if ($user === null) {
+            return "Utilisateur inconnu";
+        }
+
+        $fiche = new Fiche();
+        $fiche->setUser($user);
+        $fiche->setName($data["name"]);
+        $fiche->setData($data["data"]);
+        $fiche->setCategorie($data["categorie"]);
+
+        $this->ficheRepository->save($fiche);
+
+        return "Fiche crée";
+    }
 }
