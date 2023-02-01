@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use App\Helper\HttpResponseHelper;
 use App\Entity\User;
 use App\Repository\UserRepository;
 

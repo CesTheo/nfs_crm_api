@@ -40,14 +40,6 @@ class AppFixtures extends Fixture
                 $fiche->setName($faker->sentence(5));
                 $fiche->setCategorie($faker->randomElement(['devis', 'facture']));
                 $fiche->setData($faker->paragraphs(5));
-                // if($faker->shuffle([0, 1])){
-                //     $historyleads = new HistoryPaiment();
-                //     $historyleads->setFicheId($fiche);
-                //     $historyleads->setIsPaid(true);
-                //     $historyleads->setExecuteAt($faker->dateTime());
-                //     $historyleads->setPrice($faker->numberBetween(60, 75000));
-                //     $manager->persist($historyleads);
-                // }
 
                 $manager->persist($fiche);
             }

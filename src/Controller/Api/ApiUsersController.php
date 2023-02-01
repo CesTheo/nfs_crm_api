@@ -2,14 +2,12 @@
 
 namespace App\Controller\Api;
 
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use App\Entity\User;
 use App\Services\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use App\Helper\HttpResponseHelper;
 use Symfony\Component\Serializer\SerializerInterface;
