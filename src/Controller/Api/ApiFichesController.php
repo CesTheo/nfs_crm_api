@@ -25,7 +25,6 @@ class ApiFichesController extends AbstractController
     public function getDataUser(): Response
     {
         $datapdf = $this->ficheService->createDevisExample();
-        dd($datapdf);
         $dompdf = new Dompdf();
         $html = $this->renderView('devis/devis.html.twig', [
             'customer' => $datapdf["customer"],
@@ -55,5 +54,27 @@ class ApiFichesController extends AbstractController
     }
 
     //Read Devis
-    
+    #[Route('/readDevis/{id}', name: '_readdevis')]
+    public function readDevis(int $id)
+    {
+        $fiche = $this->ficheService->searchFichebyId($id);
+        $datapdf = $fiche->getData();
+        $dompdf = new Dompdf();
+        $html = $this->renderView('devis/devis.html.twig', [
+            'customer' => $datapdf["customer"],
+            'lead' => $datapdf["lead"],
+            'finance' => $datapdf["finance"],
+            'details' => $datapdf["details"],
+            'facture' => $datapdf["facture"],
+            'devis' => $datapdf["devis"]
+        ]);
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+        $pdf = $dompdf->output();
+
+        return new Response($pdf, 200, array(
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="file.pdf"'
+        ));
+    }
 }

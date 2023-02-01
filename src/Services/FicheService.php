@@ -101,8 +101,15 @@ class FicheService
         $fiche->setData($data["data"]);
         $fiche->setCategorie($data["categorie"]);
 
-        $this->ficheRepository->save($fiche);
+        $this->ficheRepository->save($fiche, true);
 
         return "Fiche crée";
     }
+
+
+    public function searchFichebyId($id)
+    {
+        return $this->ficheRepository->findOneBy(['id' => $id]);
+    }
+
 }
