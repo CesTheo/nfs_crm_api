@@ -68,7 +68,7 @@ class ApiUsersController extends AbstractController
         ));
     }
 
-    #[Route('/c', name: '_create', methods: ["POST"])]
+    #[Route('/', name: '_create', methods: ["POST"])]
     function createUser(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
