@@ -5,9 +5,18 @@ controllers:
     type: attribute
 
 api:
-    resource: '../src/Controller/Api/'
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller\Api
     type: annotation
     prefix: /api
+    defaults:
+        _format: json
+
+app.swagger_ui:
+    path: /docs
+    methods: GET
+    defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
 
 api_login_check:
     path: /login
