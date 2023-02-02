@@ -140,6 +140,8 @@ class FicheService
                 'categorie' => $fiche->getCategorie(),
                 'data' => $fiche->getData(),
                 'user_email' => $fiche->getUser()->getEmail(),
+                'user_lastname' => $fiche->getUser()->getLastName(),
+                'user_firstname' => $fiche->getUser()->getFirstName(),
                 'user_id' => $fiche->getUser()->getId(),
                 'user_createur_id' => $fiche->getIdCreateur(),
             ];
