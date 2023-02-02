@@ -26,6 +26,9 @@ class Fiche
     #[ORM\Column]
     private array $data = [];
 
+    #[ORM\Column]
+    private ?int $id_createur = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -87,5 +90,17 @@ class Fiche
             'categorie' => $this->categorie,
             'data' => $this->data,
         ];
+    }
+
+    public function getIdCreateur(): ?int
+    {
+        return $this->id_createur;
+    }
+
+    public function setIdCreateur(int $id_createur): self
+    {
+        $this->id_createur = $id_createur;
+
+        return $this;
     }
 }

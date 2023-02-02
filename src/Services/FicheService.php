@@ -5,16 +5,23 @@ namespace App\Services;
 use App\Entity\Fiche;
 use App\Repository\FicheRepository;
 use App\Repository\UserRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\MakerBundle\Doctrine\RelationOneToOne;
 
 class FicheService
 {
     private $ficheRepository;
     private $userRepository;
+    private $entityManager;
+    private $user;
 
-    public function __construct(FicheRepository $ficheRepository, UserRepository $userRepository)
+    public function __construct(FicheRepository $ficheRepository, UserRepository $userRepository, ManagerRegistry $doctrine, #[CurrentUser] ?User $user)
     {
         $this->ficheRepository = $ficheRepository;
         $this->userRepository = $userRepository;
+        $this->entityManager = $doctrine->getManager();
+        $this->user = $user;
+
     }
 
     public function createDevisExample(){
@@ -100,10 +107,11 @@ class FicheService
         $fiche->setName($data["name"]);
         $fiche->setData($data["data"]);
         $fiche->setCategorie($data["categorie"]);
+        $fiche->setIdCreateur($user->getId());
 
         $this->ficheRepository->save($fiche, true);
 
-        return "Fiche crée";
+        return true;
     }
 
 
@@ -112,4 +120,49 @@ class FicheService
         return $this->ficheRepository->findOneBy(['id' => $id]);
     }
 
+    public function deleteFiche($id)
+    {
+        $fiche = $this->ficheRepository->find($id);
+        $this->ficheRepository->remove($fiche);
+        $this->entityManager->flush();
+        return true;
+    }
+
+    public function getFicheByUser($id)
+    {
+        $fiches = $this->ficheRepository->findBy(
+            ['User' => $id]
+        );
+        foreach($fiches as $fiche){
+            $data[] = [
+                'id' => $fiche->getId(),
+                'name' => $fiche->getName(),
+                'categorie' => $fiche->getCategorie(),
+                'data' => $fiche->getData(),
+                'user_email' => $fiche->getUser()->getEmail(),
+                'user_id' => $fiche->getUser()->getId(),
+                'user_createur_id' => $fiche->getIdCreateur(),
+            ];
+        }
+        return $data;
+    }
+
+    public function getFicheByUserCreateur($id)
+    {
+        $fiches = $this->ficheRepository->findBy(
+            ['id_createur' => $id]
+        );
+        foreach($fiches as $fiche){
+            $data[] = [
+                'id' => $fiche->getId(),
+                'name' => $fiche->getName(),
+                'categorie' => $fiche->getCategorie(),
+                'data' => $fiche->getData(),
+                'user_email' => $fiche->getUser()->getEmail(),
+                'user_id' => $fiche->getUser()->getId(),
+                'user_createur_id' => $fiche->getIdCreateur(),
+            ];
+        }
+        return $data;
+    }
 }
