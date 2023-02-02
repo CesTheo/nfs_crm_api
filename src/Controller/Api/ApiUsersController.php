@@ -68,13 +68,12 @@ class ApiUsersController extends AbstractController
         ));
     }
 
-    #[Route('/', name: '_create', methods: ["POST"])]
+    #[Route('/create', name: '_create', methods: ["POST"])]
     function createUser(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $dto = $this->serializer->denormalize($data, CreateUserRequestDto::class);
         $this->validator->validate($dto);
-
         $user = $this->userService->createUser($dto);
 
         return $this->json(HttpResponseHelper::success($user));

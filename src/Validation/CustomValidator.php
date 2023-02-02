@@ -26,7 +26,7 @@ class CustomValidator
         }
 
         if(count($errors) > 0) {
-            throw new FormException("Un ou plusieurs champs ne sont pas valides.");
+            throw new BadRequestHttpException("Un ou plusieurs champs ne sont pas valides.");
         }
     }
 }

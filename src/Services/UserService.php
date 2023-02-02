@@ -6,6 +6,8 @@ use Doctrine\Persistence\ManagerRegistry;
 use App\Helper\HttpResponseHelper;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Validation\Dtos\CreateUserRequestDto;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class UserService
 {
@@ -52,8 +54,8 @@ class UserService
     }
 
     public function createUser(CreateUserRequestDto $dto) {
-        if($this->alreadyExist($dto->email)) {
-            throw HttpResponseHelper::badRequest("L'email est déja enregistré");
+        if($this->alreadyExists($dto->email)) {
+            throw new BadRequestHttpException("L'email est déja enregistré");
         }
 
         $user = new User();
@@ -63,10 +65,12 @@ class UserService
         $user->setFirstName($dto->firstName);
         $user->setLastName($dto->lastName);
         $user->setPhone($dto->phone);
-        $user->setVerify($dto->verify);
+        $user->setVerify(false);
         $user->setSociety($dto->society);
     
-        $user = $this->userRepository->save($user);
+        $user = $this->userRepository->save($user, true);
+
+
 
         return $user;
     }

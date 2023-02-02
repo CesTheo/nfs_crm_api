@@ -17,11 +17,11 @@ class CreateUserRequestDto
 
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255)]
-    public ?string $first_name = null;
+    public ?string $firstName = null;
 
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255)]
-    public ?string $last_name = null;
+    public ?string $lastName = null;
 
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255)]
@@ -31,4 +31,7 @@ class CreateUserRequestDto
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 255)]
     public ?string $society = null;
+
+    #[Assert\NotBlank]
+    public ?array $roles = null;
 }
